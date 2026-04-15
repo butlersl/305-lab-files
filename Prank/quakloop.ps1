@@ -11,78 +11,85 @@ $msgs = @(
     "Injecting ducks..."
 )
 
+$duckSongUrl  = "https://raw.githubusercontent.com/butlersl/305-lab-files/main/Prank/Duck-song.mp3"
+$duckSongPath = "$env:TEMP\Duck-song.mp3"
+$player = $null
+
+try {
+    Invoke-WebRequest -Uri $duckSongUrl -OutFile $duckSongPath -UseBasicParsing
+    $player = New-Object -ComObject WMPlayer.OCX
+    $player.URL = $duckSongPath
+    $player.settings.volume = 100
+    $player.controls.play()
+} catch {
+    # ignore audio failures
+}
+
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "QUACKED"
-$form.Size = New-Object System.Drawing.Size(260,140)
+$form.Size = New-Object System.Drawing.Size(320,190)
 $form.StartPosition = "Manual"
 $form.TopMost = $true
 $form.FormBorderStyle = "FixedDialog"
 $form.MaximizeBox = $false
 $form.MinimizeBox = $false
 $form.BackColor = [System.Drawing.Color]::Black
-$form.KeyPreview = $true   # 🔑 IMPORTANT (captures ESC key)
+$form.ForeColor = [System.Drawing.Color]::White
+$form.KeyPreview = $true
 
 $label = New-Object System.Windows.Forms.Label
-$label.Size = New-Object System.Drawing.Size(220,40)
-$label.Location = New-Object System.Drawing.Point(20,15)
+$label.Size = New-Object System.Drawing.Size(260,50)
+$label.Location = New-Object System.Drawing.Point(28,22)
 $label.ForeColor = [System.Drawing.Color]::White
 $label.BackColor = [System.Drawing.Color]::Black
-$label.TextAlign = "MiddleCenter"
-$label.Font = New-Object System.Drawing.Font("Arial",12,[System.Drawing.FontStyle]::Bold)
-$label.Text = "Try to catch me!"
+$label.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$label.Font = New-Object System.Drawing.Font("Segoe UI",14,[System.Drawing.FontStyle]::Bold)
+$label.Text = "You have been quacked!"
 
 $button = New-Object System.Windows.Forms.Button
-$button.Size = New-Object System.Drawing.Size(100,30)
-$button.Location = New-Object System.Drawing.Point(75,65)
+$button.Size = New-Object System.Drawing.Size(140,42)
+$button.Location = New-Object System.Drawing.Point(88,95)
 $button.Text = "Catch!"
+$button.Font = New-Object System.Drawing.Font("Segoe UI",11,[System.Drawing.FontStyle]::Bold)
+$button.TabStop = $false
 
 $form.Controls.Add($label)
 $form.Controls.Add($button)
 
 function Move-Form {
     $screen = [System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea
-    $maxX = $screen.Width - $form.Width
-    $maxY = $screen.Height - $form.Height
+    $maxX = [Math]::Max(0, $screen.Width - $form.Width)
+    $maxY = [Math]::Max(0, $screen.Height - $form.Height)
 
     $form.Left = Get-Random -Minimum 0 -Maximum ($maxX + 1)
     $form.Top  = Get-Random -Minimum 0 -Maximum ($maxY + 1)
-
-    $label.Text = $msgs | Get-Random
 }
 
 $action = {
-    Move-Form
     $phrase = $msgs | Get-Random
     $label.Text = $phrase
-    $sp.Speak($phrase)
+    Move-Form
+    try { $sp.Speak($phrase) } catch {}
 }
 
 $button.Add_Click($action)
-$form.Add_Click($action)
 $label.Add_Click($action)
+$form.Add_Click($action)
 
-# 🔑 ESC KEY KILL SWITCH
 $form.Add_KeyDown({
-    if ($_.KeyCode -eq "Escape") {
+    if ($_.KeyCode -eq [System.Windows.Forms.Keys]::Escape) {
         $form.Close()
     }
 })
 
-# ⏱ AUTO STOP TIMER
-$timer = New-Object System.Windows.Forms.Timer
-$timer.Interval = 1000
-
-$startTime = Get-Date
-$durationSeconds = 25
-
-$timer.Add_Tick({
-    if ((New-TimeSpan -Start $startTime -End (Get-Date)).TotalSeconds -ge $durationSeconds) {
-        $timer.Stop()
-        $form.Close()
-    }
+$form.Add_FormClosed({
+    try {
+        if ($player -ne $null) {
+            $player.controls.stop()
+            $player.close()
+        }
+    } catch {}
 })
 
 Move-Form
-$timer.Start()
 [void]$form.ShowDialog()
-$timer.Dispose()
