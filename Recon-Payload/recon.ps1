@@ -201,19 +201,20 @@ try {
     "  [!] Defender not available or access denied" | Out-File $out -Append
 }
 
-# =================
-# FILE SYSTEM TREE 
-# =================
-Section "FOLDER SUMMARY"
+# ==================
+# FILE SYSTEM TREE
+# ==================
+Section "FILE SYSTEM TREE"
 
-foreach ($folder in @("Desktop","Documents","Downloads")) {
+foreach ($folder in @("Desktop", "Documents", "Downloads")) {
     $path = "$env:USERPROFILE\$folder"
 
+    "`n  -- $folder --" | Out-File $out -Append
+
     if (Test-Path $path) {
-        $count = (Get-ChildItem $path -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
-        "  $folder : $count items" | Out-File $out -Append
+        cmd /c "tree `"$path`" /F 2>nul" | Out-File $out -Append
     } else {
-        "  $folder : [not found]" | Out-File $out -Append
+        "  [not found]" | Out-File $out -Append
     }
 }
 
