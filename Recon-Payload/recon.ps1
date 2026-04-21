@@ -4,7 +4,6 @@ param([string]$DuckyDrive)
 # ============================================================
 # DuckDuckPwned.ps1
 # Recon Combo: System Info + Geolocation + File Tree
-# Output: uploaded to github
 # ============================================================
 
 # === Output File ===
