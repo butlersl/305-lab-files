@@ -45,6 +45,44 @@ $uptime = (Get-Date) - $os.ConvertToDateTime($os.LastBootUpTime)
   System Dir : $($os.SystemDirectory)
 "@ | Out-File $out -Append
 
+# =================
+# DISK INFORMATION
+# =================
+Section "DISK INFO"
+
+Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" |
+    Select-Object DeviceID,
+        @{N="Size(GB)";E={[math]::Round($_.Size/1GB,2)}},
+        @{N="Free(GB)";E={[math]::Round($_.FreeSpace/1GB,2)}} |
+    Format-Table -AutoSize |
+    Out-String |
+    Out-File $out -Append
+
+# ===================
+# POWERSHELL VERSION
+# ===================
+Section "POWERSHELL INFO"
+
+@"
+  Version : $($PSVersionTable.PSVersion)
+  Edition : $($PSVersionTable.PSEdition)
+"@ | Out-File $out -Append
+
+# ============================
+# HOSTNAME/ FQDN CONSISTENCY
+# =============================
+Section "HOSTNAME / FQDN"
+
+try {
+    $fqdn = [System.Net.Dns]::GetHostByName($env:COMPUTERNAME).HostName
+    @"
+  Hostname : $env:COMPUTERNAME
+  FQDN     : $fqdn
+"@ | Out-File $out -Append
+} catch {
+    "  [!] Could not resolve FQDN" | Out-File $out -Append
+}
+
 # ====================
 # NETWORK INFORMATION
 # ====================
@@ -53,6 +91,12 @@ Section "NETWORK INFO"
 Get-NetIPAddress -AddressFamily IPv4 |
     Where-Object { $_.IPAddress -ne "127.0.0.1" } |
     Select-Object InterfaceAlias, IPAddress, PrefixLength |
+    Format-Table -AutoSize |
+    Out-String |
+    Out-File $out -Append
+
+Get-NetIPConfiguration |
+    Select-Object InterfaceAlias, IPv4Address, IPv4DefaultGateway |
     Format-Table -AutoSize |
     Out-String |
     Out-File $out -Append
@@ -87,6 +131,17 @@ Get-LocalUser |
     Format-Table -AutoSize |
     Out-String |
     Out-File $out -Append
+
+# =====================
+# LOGGED-IN SESSIONS
+# =====================
+Section "LOGGED-IN SESSIONS"
+
+try {
+    quser | Out-File $out -Append
+} catch {
+    "  [!] Could not retrieve session info" | Out-File $out -Append
+}
 
 # ==================
 # WATCHED PROCESSES
@@ -131,18 +186,34 @@ Get-ItemProperty "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*" `
     Out-String |
     Out-File $out -Append
 
+# ============================
+# IS WINDOWS DEFENDER ACTIVE
+# ============================
+Section "SECURITY (DEFENDER)"
+
+try {
+    Get-MpComputerStatus |
+        Select-Object AMServiceEnabled, AntispywareEnabled, AntivirusEnabled, RealTimeProtectionEnabled |
+        Format-List |
+        Out-String |
+        Out-File $out -Append
+} catch {
+    "  [!] Defender not available or access denied" | Out-File $out -Append
+}
+
 # =================
 # FILE SYSTEM TREE 
 # =================
-Section "FILE SYSTEM TREE"
+Section "FOLDER SUMMARY"
 
-foreach ($folder in @("Desktop", "Documents", "Downloads")) {
+foreach ($folder in @("Desktop","Documents","Downloads")) {
     $path = "$env:USERPROFILE\$folder"
-    "`n  -- $folder --" | Out-File $out -Append
+
     if (Test-Path $path) {
-        cmd /c "tree `"$path`" /F 2>nul" | Out-File $out -Append
+        $count = (Get-ChildItem $path -Recurse -ErrorAction SilentlyContinue | Measure-Object).Count
+        "  $folder : $count items" | Out-File $out -Append
     } else {
-        "  [not found]" | Out-File $out -Append
+        "  $folder : [not found]" | Out-File $out -Append
     }
 }
 
