@@ -22,6 +22,7 @@ ENTER
 DELAY 300
 
 STRING Invoke-WebRequest -Uri $u -OutFile $p
+STRING $body = $p
 ENTER
 DELAY 1500
 
