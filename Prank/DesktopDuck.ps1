@@ -1,6 +1,19 @@
+# Author: cribb-it
+# Link: https://github.com/hak5/usbrubberducky-payloads/blob/master/payloads/library/prank/Win_PoSH_DesktopDuck/DesktopDuck.ps1
+<# 
+.SYNOPSIS
+	Animated duck that walks across the screen.
+
+.DESCRIPTION
+	Displays a transparent WPF duck animation that moves left/right.
+	Right-Click to close.
+#>
+
+# === Load Assemblies ===
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms");
 Add-Type -Assembly PresentationFramework
-# xml of the wpf xaml code. this is the window to be shown
+
+# === XAML Window Definition ===
 [xml]$xaml = @"
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -76,25 +89,29 @@ Add-Type -Assembly PresentationFramework
     </Grid>
 </Window>
 "@
-# the direction the duck is traveling in
+
+# === Movement Direction ===
 $goingRight = $true;
-# get the screen
+
+# === Screen Info ===
 $Screen = [System.Windows.Forms.Screen]::PrimaryScreen;
-# create a reader for the xml
+
+# === Load Window ===
 $reader = (New-Object System.Xml.XmlNodeReader $xaml)
 # create the window from the reader
 $window = [Windows.Markup.XamlReader]::Load($reader)
-# find the ScaleTransform for the Canvas on the window
-# this is used for fliping the image
+
+# === Duck Transforms (used to flip direction) ===
 $duck = $window.FindName("DuckyScale")
-# add right click to window to close it
+
+# === Right-Click closes window ===
 $handler = [Windows.Input.MouseButtonEventHandler]{ 
     $Timer.Stop();
     $window.Close(); 
     $_.Handled = $true; }
 $window.Add_MouseRightButtonDown($handler);
-# get task bar height
-# Note: this is expecting is to be top or bottom
+
+# === taskbar adjustment ===
 $taskbar = ($Screen.Bounds.Height - $Screen.WorkingArea.Height);
 # set the window postion
 $window.Left = $Screen.WorkingArea.Left;
@@ -103,7 +120,7 @@ if ($Screen.WorkingArea.Top -eq 0)
 {
     $window.Top = $window.Top - $taskbar;
 }
-# timer that is used to move the window
+# === Movement Timer to Move Window ===
 $Timer = New-Object System.Windows.Forms.Timer;
 $Timer.Interval = 200;
 $Timer.add_Tick(
