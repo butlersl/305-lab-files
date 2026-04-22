@@ -1,5 +1,5 @@
-REM Title: ReverseDucky
-REM Author: 0i41E, Korben
+REM Title: ReverseShell
+REM Credits: 0i41E, Korben
 REM Target: Windows
 REM Link: https://github.com/hak5/usbrubberducky-payloads/tree/master/payloads/library/remote_access/ReverseDuckyPolymorph
 
