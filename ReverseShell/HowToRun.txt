@@ -3,8 +3,10 @@ Instructions to run:
 1. Make sure both the attacker and the target are on the same wi-fi network
 2. figure out IP of attacker machine using ipconfig or ip a
 3. activate a listener on the attacker machine using nc -lvnp 4444 (4444 is the port used)
-4. plug the USB into the target machine
-5. wait for script to run
-6. on attacker machine, type help to get a list of command and connect
-7. run commands
-8. type exit to turn off the reverse shell
+4. go to the ducky payload and edit the IP address to match that of the attacker machine
+5. compile and download the payload to the rubber ducky
+6. plug the USB into the target machine
+7. wait for script to run
+8. on attacker machine, type help to get a list of command and connect
+9. run commands
+10. type exit to turn off the reverse shell
