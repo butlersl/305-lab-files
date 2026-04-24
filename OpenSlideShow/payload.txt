@@ -1,5 +1,5 @@
 DELAY 1000
 GUI r
 DELAY 300
-STRING chrome --new-window @https://docs.google.com/presentation/d/158Rwrc0SZmBj0eLOrtl3f1xsISMt8DQ_Z73o5RS4PHI/edit
+STRING chrome --new-window @https://docs.google.com/presentation/d/158Rwrc0SZmBj0eLOrtl3f1xsISMt8DQ_Z73o5RS4PHI/edit?usp=sharing
 ENTER
